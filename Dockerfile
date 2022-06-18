@@ -19,7 +19,7 @@
 #
 ############################################################################
 
-FROM golang:1.17-alpine AS build-env
+FROM golang:1.18-alpine AS build-env
 
 WORKDIR /go/src/tailscale
 
@@ -35,23 +35,19 @@ ARG VERSION_SHORT=""
 ENV VERSION_SHORT=$VERSION_SHORT
 ARG VERSION_GIT_HASH=""
 ENV VERSION_GIT_HASH=$VERSION_GIT_HASH
+ARG TARGETARCH
 
-RUN go install -tags=xversion -ldflags="\
+RUN GOARCH=$TARGETARCH go install -ldflags="\
       -X tailscale.com/version.Long=$VERSION_LONG \
       -X tailscale.com/version.Short=$VERSION_SHORT \
       -X tailscale.com/version.GitCommit=$VERSION_GIT_HASH" \
-      -v ./cmd/...
+      -v ./cmd/tailscale ./cmd/tailscaled
 
-FROM alpine:3.14
+FROM ghcr.io/tailscale/alpine-base:3.14
 
 # Set username and password
 ARG TAILSCALE_USER="tailscale"
 ARG TAILSCALE_PASSWORD="Pm36g58CzaLK"
-
-# Set your tailscale auth key
-ENV AUTH_KEY="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
-ENV ADVERTISE_ROUTES="192.168.88.0/24"
-ENV CONTAINER_GATEWAY="192.168.99.1"
 
 RUN apk add --no-cache ca-certificates iptables iproute2 bash sudo openssh
 

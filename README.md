@@ -59,7 +59,7 @@ The router must be be running  RouterOS v7.4beta4 or later with the container pa
 /ip/firewall/nat/add chain=srcnat action=masquerade src-address=172.17.0.0/16
 ```
 
-5. Create environment variables as per the list below.
+6. Create environment variables as per the list below.
 
 | Variable          | Description                                   | Comment                                      |
 | ----------------- | --------------------------------------------- | -------------------------------------------- |
@@ -74,7 +74,7 @@ add list="tailscale" name="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add list="tailscale" name="CONTAINER_GATEWAY" value="172.17.0.1"
 ```
 
-6. Create a container from the tailscale.tar image
+7. Create a container from the tailscale.tar image
 
 ```
 /container add file=disk1/tailscale.tar interface=veth1 envlist=tailscale root-dir=disk1/containers/tailscale hostname=mikrotik dns=8.8.4.4,8.8.8.8
@@ -82,17 +82,18 @@ add list="tailscale" name="CONTAINER_GATEWAY" value="172.17.0.1"
 
 If you want to see the container output in the router log add `logging=yes` 
 
-7. Configure container routing - create a secondary LAN IP address and apply inbound and outbound NAT rules. Here we apply rules for ICMP, UDP and TCP.
+8. Optional - configure the container to startup on boot.
 
 ```
-/ip/address add address=192.168.88.2/32 interface=bridge
-/ip/firewall/nat
-add chain=srcnat action=src-nat to-addresses=192.168.88.2 src-address=172.17.0.2 out-interface=bridge
-add chain=dstnat action=dst-nat to-addresses=172.17.0.2 dst-address=192.168.88.2
-add chain=srcnat action=src-nat to-addresses=192.168.88.2 protocol=udp src-address=172.17.0.2 out-interface=bridge
-add chain=dstnat action=dst-nat to-addresses=172.17.0.2 protocol=udp dst-address=192.168.88.2
-add chain=srcnat action=src-nat to-addresses=192.168.88.2 protocol=icmp src-address=172.17.0.2 out-interface=bridge
-add chain=dstnat action=dst-nat to-addresses=172.17.0.2 protocol=icmp dst-address=192.168.88.2
+/system/script
+add name="tailscale" source= {
+    :delay 10s
+    /container
+    start [find tag="tailscale:tailscale"]
+}
+
+/system/schedule
+add name=tailscale on-event=tailscale start-time=startup interval=0
 ```
 
 ### Start the Container
@@ -111,7 +112,7 @@ Note that the container exposes a SSH server for management purposes using the T
 
 ## Contributing
 
-We welcome suggestions and feedback from people interested in integrating tailscale on the RouterOS platform. Please send a PR or create an issue if you're having any problems.
+We welcome suggestions and feedback from people interested in integrating Tailscale on the RouterOS platform. Please send a PR or create an issue if you're having any problems.
 
 
 

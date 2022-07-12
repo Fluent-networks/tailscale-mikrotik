@@ -18,18 +18,17 @@ A WAN interface is configured as per default configuration on **ether1** for con
 The build script uses [Docker Buildx](https://docs.docker.com/buildx/working-with-buildx/).
 
 1. In `build.sh` set the PLATFORM shell script variable as required for the target router CPU - see [https://mikrotik.com/products/matrix](https://mikrotik.com/products/matrix)
-2. In `Dockerfile` set the following arguments.
+2. In `Dockerfile` set the following argument.
 
-| Argument           | Description                     |
-| ------------------ | ------------------------------- |
-| TAILSCALE_USER     | Tailscale user name             |
-| TAILSCALE_PASSWORD | Password for the tailscale user |
+| Argument           | Description            |
+| ------------------ | ---------------------- |
+| TAILSCALE_PASSWORD | Password for root user |
 
 3. Run `./build.sh` to build the image. The build process will generate a container image file **`tailscale.tar`**
 
 ### Configure the Router
 
-The router must be be running  RouterOS v7.4beta4 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
+The router must be be running RouterOS v7.4rc2 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
 
 1. Upload the `tailscale.tar` file to your router. Below we will assume the image is located at `disk1/tailscale.tar`
 
@@ -53,10 +52,10 @@ The router must be be running  RouterOS v7.4beta4 or later with the container pa
 /interface/bridge/port add bridge=dockers interface=veth1
 ```
 
-5. Setup NAT for outgoing traffic
+5. Setup NAT for outgoing WAN traffic. 
 
 ```
-/ip/firewall/nat/add chain=srcnat action=masquerade src-address=172.17.0.0/16
+/ip/firewall/nat/add chain=srcnat action=masquerade src-address=172.17.0.0/16 out-interface=ether1
 ```
 
 6. Create environment variables as per the list below.
@@ -69,9 +68,9 @@ The router must be be running  RouterOS v7.4beta4 or later with the container pa
 
 ```
 /container/envs
-add list="tailscale" name="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
-add list="tailscale" name="ADVERTISE_ROUTES" value="192.168.88.0/24"
-add list="tailscale" name="CONTAINER_GATEWAY" value="172.17.0.1"
+add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
+add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
+add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
 ```
 
 7. Create a container from the tailscale.tar image
@@ -87,7 +86,7 @@ If you want to see the container output in the router log add `logging=yes`
 ```
 /system/script
 add name="tailscale" source= {
-    :delay 10s
+    :delay 60s
     /container
     start [find tag="tailscale:tailscale"]
 }
@@ -108,7 +107,7 @@ Ensure the container has been extracted and added by verifying `status=stopped` 
 
 In the Tailscale console, verify the router is authenticated and enable the subnet routes. Your tailscale hosts should now be able to reach the router's LAN subnet. 
 
-Note that the container exposes a SSH server for management purposes using the TAILSCALE_USER credentials, and can be accessed via the tailscale address or the LAN secondary IP address.
+The container exposes a SSH server for management purposes using root credentials, and can be accessed via the router's tailscale address or the veth interface address.
 
 ## Contributing
 

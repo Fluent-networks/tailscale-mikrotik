@@ -45,22 +45,17 @@ RUN GOARCH=$TARGETARCH go install -ldflags="\
 
 FROM ghcr.io/tailscale/alpine-base:3.14
 
-# Set username and password
-ARG TAILSCALE_USER="tailscale"
+# Set password
 ARG TAILSCALE_PASSWORD="Pm36g58CzaLK"
+RUN echo "root:$TAILSCALE_PASSWORD" | chpasswd
 
 RUN apk add --no-cache ca-certificates iptables iproute2 bash sudo openssh
-
-RUN addgroup -S tailscale
-RUN adduser --shell /bin/bash -S $TAILSCALE_USER -G tailscale \
-      && echo "$TAILSCALE_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$TAILSCALE_USER \
-      && chmod 0440 /etc/sudoers.d/$TAILSCALE_USER
-RUN echo "tailscale:$TAILSCALE_PASSWORD" | chpasswd
 
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 RUN ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
 COPY --from=build-env /go/bin/* /usr/local/bin/
+ADD sshd_config /etc/ssh/
 
 EXPOSE 22
 ADD tailscale.sh /usr/local/bin

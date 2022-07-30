@@ -28,7 +28,7 @@ The build script uses [Docker Buildx](https://docs.docker.com/buildx/working-wit
 
 ### Configure the Router
 
-The router must be be running RouterOS v7.4rc2 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
+The router must be be running RouterOS v7.5beta4 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
 
 1. Upload the `tailscale.tar` file to your router. Below we will assume the image is located at `disk1/tailscale.tar`
 
@@ -52,10 +52,10 @@ The router must be be running RouterOS v7.4rc2 or later with the container packa
 /interface/bridge/port add bridge=dockers interface=veth1
 ```
 
-5. Setup NAT for outgoing WAN traffic. 
+5. Enable routing from the LAN to the Tailscale Network 
 
 ```
-/ip/firewall/nat/add chain=srcnat action=masquerade src-address=172.17.0.0/16 out-interface=ether1
+/ip/route/add dst-address=100.64.0.0/10 gateway=172.17.0.2
 ```
 
 6. Create environment variables as per the list below.

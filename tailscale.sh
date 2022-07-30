@@ -14,7 +14,7 @@ for s in "${SUBNETS[@]}"; do
 done
 
 # Start tailscaled and bring tailscale up 
-/usr/local/bin/tailscaled --tun=userspace-networking &
+/usr/local/bin/tailscaled &
 until /usr/local/bin/tailscale up \
 	--authkey=${AUTH_KEY} \
 	--advertise-routes="${ADVERTISE_ROUTES}"

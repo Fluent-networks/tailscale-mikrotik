@@ -28,7 +28,7 @@ PLATFORM="linux/arm/v7"
 
 set -eu
 
-if [[ ! -d ./tailscale/.git ]]
+if [ ! -d ./tailscale/.git ]
 then
     git clone https://github.com/tailscale/tailscale.git
 fi

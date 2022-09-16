@@ -43,7 +43,7 @@ RUN GOARCH=$TARGETARCH go install -ldflags="\
       -X tailscale.com/version.GitCommit=$VERSION_GIT_HASH" \
       -v ./cmd/tailscale ./cmd/tailscaled
 
-FROM ghcr.io/tailscale/alpine-base:3.14
+FROM ghcr.io/tailscale/alpine-base:3.16
 
 # Set password
 ARG TAILSCALE_PASSWORD="Pm36g58CzaLK"

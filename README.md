@@ -28,7 +28,7 @@ The build script uses [Docker Buildx](https://docs.docker.com/buildx/working-wit
 
 ### Configure the Router
 
-The router must be be running RouterOS v7.5beta4 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
+The router must be be running RouterOS v7.5 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
 
 1. Upload the `tailscale.tar` file to your router. Below we will assume the image is located at `disk1/tailscale.tar`
 

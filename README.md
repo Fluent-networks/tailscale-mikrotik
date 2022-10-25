@@ -1,8 +1,8 @@
 # Tailscale for Mikrotik Container
 
-This project provides the build and configuration information to run [Tailscale](https://tailscale.com) in [Mikrotik Container](https://help.mikrotik.com/docs/display/ROS/Container). Container is MikroTik's own implementation of Docker(TM), allowing users to run containerized environments within RouterOS.
+This project provides build and configuration information to run [Tailscale](https://tailscale.com) in [Mikrotik Container](https://help.mikrotik.com/docs/display/ROS/Container). Container is Mikrotik's own implementation of Docker(TM), allowing users to run containerized environments within RouterOS.
 
-This project is recommended for research and testing purposes only. Running Container currently requires installing the development branch of RouterOS and is unsupported for production use. Testing indicates there are also significant performance impacts: running a unidirectional IPerf UDP test of 50 Mbps via the container on a Mikrotik hAP ac3 consumes ~75% of the router's CPU.
+This project is only recommended for research and testing purposes. Testing indicates there are significant performance hurdles: running a unidirectional IPerf UDP test of 50 Mbps via the container on a Mikrotik hAP ac3 consumes ~75% of the router's CPU.
 
 ## Instructions
 
@@ -15,36 +15,32 @@ A WAN interface is configured as per default configuration on **ether1** for con
 
 ### Build the Docker Image
 
+Note this step is only required if you are uploading an image to your router. See Configuration Step 6.
+
 The build script uses [Docker Buildx](https://docs.docker.com/buildx/working-with-buildx/).
 
 1. In `build.sh` set the PLATFORM shell script variable as required for the target router CPU - see [https://mikrotik.com/products/matrix](https://mikrotik.com/products/matrix)
-2. In `Dockerfile` set the following argument.
 
-| Argument           | Description            |
-| ------------------ | ---------------------- |
-| TAILSCALE_PASSWORD | Password for root user |
-
-3. Run `./build.sh` to build the image. The build process will generate a container image file **`tailscale.tar`**
+2. Run `./build.sh` to build the image. The build process will generate a container image archive file **`tailscale.tar`**
 
 ### Configure the Router
 
-The router must be be running RouterOS v7.5 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
+The router must be be running RouterOS v7.6 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
 
-1. Upload the `tailscale.tar` file to your router. Below we will assume the image is located at `disk1/tailscale.tar`
 
-2. Enable container mode, and reboot.
+1. Enable container mode, and reboot.
 
 ```
 /system/device-mode/update container=yes
 ```
 
-3. Create a veth interface for the container.
+2. Create a veth interface for the container.
 
 ```
 /interface/veth add name=veth1 address=172.17.0.2/16 gateway=172.17.0.1
 ```
 
-4. Create a bridge for the container and add veth1 as a port.
+3. Create a bridge for the container and add veth1 as a port.
 
 ```
 /interface/bridge add name=dockers
@@ -52,48 +48,59 @@ The router must be be running RouterOS v7.5 or later with the container package 
 /interface/bridge/port add bridge=dockers interface=veth1
 ```
 
-5. Enable routing from the LAN to the Tailscale Network 
+4. Enable routing from the LAN to the Tailscale Network 
 
 ```
 /ip/route/add dst-address=100.64.0.0/10 gateway=172.17.0.2
 ```
 
-6. Create environment variables as per the list below.
+5. Add environment variables as per the list below.
 
 | Variable          | Description                                   | Comment                                      |
 | ----------------- | --------------------------------------------- | -------------------------------------------- |
-| AUTH_KEY          | Tailscale reusable key                        | Generate the key from the tailscale console. |
+| PASSWORD          | System root user password                     |                                              |
+| DOMAIN            | Tailscale domain                              |                                              |
+| AUTH_KEY          | Tailscale reusable key                        | Generate from the tailscale console          |
+| API_KEY           | Tailscale API key                             | See Upgrading section below                  |
 | ADVERTISE_ROUTES  | Comma-separated list of routes to advertise   |                                              |
-| CONTAINER_GATEWAY | The Container bridge IP address on the router |                                              |
+| CONTAINER_GATEWAY | The container bridge IP address on the router |                                              |
+| TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
 
 ```
 /container/envs
+add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
+add name="tailscale" key="DOMAIN" value="example.com"
 add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
+add name="tailscale" key="API_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
+add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes"
 ```
 
-7. Create a container from the tailscale.tar image
+6. Create the container
+
+The container can be created via a registry or using the `tailscale.tar` file.
+
+a. Container registry
+
+Configure the registry URL and add the container.
 
 ```
-/container add file=disk1/tailscale.tar interface=veth1 envlist=tailscale root-dir=disk1/containers/tailscale hostname=mikrotik dns=8.8.4.4,8.8.8.8
+/container/config 
+set registry-url=https://ghcr.io tmpdir=disk1/pull
+
+/container add remote-image=fluent-networks/tailscale-mikrotik:latest interface=veth1 envlist=tailscale root-dir=disk1/containers/tailscale start-on-boot=yes hostname=mikrotik dns=8.8.4.4,8.8.8.8
 ```
 
-If you want to see the container output in the router log add `logging=yes` 
+b. Tar archive file
 
-8. Optional - configure the container to startup on boot.
+Upload the `tailscale.tar` file to your router. Below we will assume the image is located at `disk1/tailscale.tar`
 
 ```
-/system/script
-add name="tailscale" source= {
-    :delay 60s
-    /container
-    start [find tag="tailscale:tailscale"]
-}
-
-/system/schedule
-add name=tailscale on-event=tailscale start-time=startup interval=0
+/container add file=disk1/tailscale.tar interface=veth1 envlist=tailscale root-dir=disk1/containers/tailscale start-on-boot=yes hostname=mikrotik dns=8.8.4.4,8.8.8.8
 ```
+
+If you want to see the container output in the router log add `logging=yes` to the container add command. 
 
 ### Start the Container
 
@@ -105,9 +112,22 @@ Ensure the container has been extracted and added by verifying `status=stopped` 
 
 ### Verify Connectivity
 
-In the Tailscale console, verify the router is authenticated and enable the subnet routes. Your tailscale hosts should now be able to reach the router's LAN subnet. 
+In the Tailscale console, check the router is authenticated and enable the subnet routes. Your tailscale hosts should now be able to reach the router's LAN subnet. 
 
 The container exposes a SSH server for management purposes using root credentials, and can be accessed via the router's tailscale address or the veth interface address.
+
+## Upgrading
+
+To upgrade, first stop and remove the container.
+
+```
+/container/stop 0
+/container/remove 0
+```
+
+Create a new container as per Step 6. The tailscale.sh script detects if the tailscale machine exists and removes it using the Tailscale API. A new machine is then created with the same hostname.
+
+In the Tailscale console, check the router is authenticated and enable the subnet routes.
 
 ## Contributing
 

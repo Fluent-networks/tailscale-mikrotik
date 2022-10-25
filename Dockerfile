@@ -26,6 +26,18 @@ WORKDIR /go/src/tailscale
 COPY tailscale/go.mod tailscale/go.sum ./
 RUN go mod download
 
+# Pre-build some stuff before the following COPY line invalidates the Docker cache.
+RUN go install \
+    github.com/aws/aws-sdk-go-v2/aws \
+    github.com/aws/aws-sdk-go-v2/config \
+    gvisor.dev/gvisor/pkg/tcpip/adapters/gonet \
+    gvisor.dev/gvisor/pkg/tcpip/stack \
+    golang.org/x/crypto/ssh \
+    golang.org/x/crypto/acme \
+    nhooyr.io/websocket \
+    github.com/mdlayher/netlink \
+    golang.zx2c4.com/wireguard/device
+
 COPY tailscale/. .
 
 # see build.sh
@@ -43,21 +55,17 @@ RUN GOARCH=$TARGETARCH go install -ldflags="\
       -X tailscale.com/version.GitCommit=$VERSION_GIT_HASH" \
       -v ./cmd/tailscale ./cmd/tailscaled
 
-FROM ghcr.io/tailscale/alpine-base:3.16
+FROM alpine:3.16
 
-# Set password
-ARG TAILSCALE_PASSWORD="Pm36g58CzaLK"
-RUN echo "root:$TAILSCALE_PASSWORD" | chpasswd
-
-RUN apk add --no-cache ca-certificates iptables iproute2 bash sudo openssh
+RUN apk add --no-cache ca-certificates iptables iproute2 bash openssh curl jq
 
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 RUN ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
 COPY --from=build-env /go/bin/* /usr/local/bin/
-ADD sshd_config /etc/ssh/
+COPY sshd_config /etc/ssh/
+COPY tailscale.sh /usr/local/bin
 
 EXPOSE 22
-ADD tailscale.sh /usr/local/bin
 CMD ["/usr/local/bin/tailscale.sh"]
 

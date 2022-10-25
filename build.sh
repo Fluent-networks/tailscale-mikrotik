@@ -25,21 +25,26 @@
 # https://mikrotik.com/products/matrix
 #
 PLATFORM="linux/arm/v7"
+TAILSCALE_VERSION=1.32.0
+VERSION=0.1.6
 
 set -eu
 
+rm -f tailscale.tar
+
 if [ ! -d ./tailscale/.git ]
 then
-    git clone https://github.com/tailscale/tailscale.git
+    git -c advice.detachedHead=false clone https://github.com/tailscale/tailscale.git --branch v$TAILSCALE_VERSION
 fi
 
 cd tailscale && eval $(./build_dist.sh shellvars) && cd ..
 
 docker buildx build \
+  --no-cache \
   --build-arg VERSION_LONG=$VERSION_LONG \
   --build-arg VERSION_SHORT=$VERSION_SHORT \
   --build-arg VERSION_GIT_HASH=$VERSION_GIT_HASH \
   --platform $PLATFORM \
-  -t tailscale:tailscale .
+  --load -t ghcr.io/fluent-networks/tailscale-mikrotik:$VERSION .
 
-docker save -o tailscale.tar tailscale:tailscale
+docker save -o tailscale.tar ghcr.io/fluent-networks/tailscale-mikrotik:$VERSION

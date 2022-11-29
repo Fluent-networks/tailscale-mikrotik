@@ -69,12 +69,12 @@ The router must be be running RouterOS v7.6 or later with the container package 
 ```
 /container/envs
 add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
-add name="tailscale" key="DOMAIN" value="example.com"
+add name="tailscale" key="DOMAIN" value="word-word.ts.net"
 add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="API_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
-add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes"
+add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
 ```
 
 6. Create the container
@@ -132,6 +132,3 @@ In the Tailscale console, check the router is authenticated and enable the subne
 ## Contributing
 
 We welcome suggestions and feedback from people interested in integrating Tailscale on the RouterOS platform. Please send a PR or create an issue if you're having any problems.
-
-
-

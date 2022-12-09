@@ -4,9 +4,11 @@ This project provides build and configuration information to run [Tailscale](htt
 
 This project is only recommended for research and testing purposes. Testing indicates there are significant performance hurdles: running a unidirectional IPerf UDP test of 50 Mbps via the container on a Mikrotik hAP ac3 consumes ~75% of the router's CPU.
 
+The instructions below assume a use case for tailscale-enabled hosts accessing a router connected LAN subnet. Other site to site scenarios are outlined in the [project wiki](https://github.com/Fluent-networks/tailscale-mikrotik/wiki).
+
 ## Instructions
 
-The instructions below assume a use case for tailscale-enabled hosts accessing a router connected LAN subnet. The container runs as a [tailscale subnet router](https://tailscale.com/kb/1019/subnets/) on a Mikrotik hAP ac3. There are two subnets configured:
+The container runs as a [tailscale subnet router](https://tailscale.com/kb/1019/subnets/) on a Mikrotik hAP ac3. There are two subnets configured:
 
 * 192.168.88.0/24: the default bridge with physical LAN interface ports, routed to the tailscale network
 * 172.17.0.0/16: the docker bridge with a virtual ethernet (veth) interface port for the container

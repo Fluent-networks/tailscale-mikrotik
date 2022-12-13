@@ -120,6 +120,7 @@ The container exposes a SSH server for management purposes using root credential
 
 ## Upgrading
 
+### Manual
 To upgrade, first stop and remove the container.
 
 ```
@@ -130,6 +131,40 @@ To upgrade, first stop and remove the container.
 Create a new container as per Step 6. The tailscale.sh script detects if the tailscale machine exists and removes it using the Tailscale API. A new machine is then created with the same hostname.
 
 In the Tailscale console, check the router is authenticated and enable the subnet routes.
+
+### Via Script
+The script **upgrade.rsc** automates the upgrade process. To use the script, edit the *hostname* variable to match your container
+and import the script - note the script assumes the container repository is being used.
+
+```
+/system script add name=upgrade source=[ /file get upgrade.rsc contents];
+```
+
+Run the script:
+```
+/system script 
+run [find name="upgrade"];
+
+Stopping the container...
+Waiting for the container to stop...
+Waiting for the container to stop...
+Waiting for the container to stop...
+Stopped.
+Removing the container...
+Waiting for the container to be removed...
+Removed.
+Adding the container...
+Waiting for the container to be added...
+Waiting for the container to be added...
+Waiting for the container to be added...
+Waiting for the container to be added...
+Waiting for the container to be added...
+Waiting for the container to be added...
+Added.
+Starting the container.
+```
+
+Note the script will continue to run if you are connecting over the tailnet. When completed, check the router is authenticated and enable the subnet routes in the Tailscale console.
 
 ## Contributing
 

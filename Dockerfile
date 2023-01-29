@@ -23,6 +23,7 @@ FROM golang:1.19-alpine AS build-env
 
 WORKDIR /go/src/tailscale
 
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on
 COPY tailscale/go.mod tailscale/go.sum ./
 RUN go mod download
 
@@ -35,8 +36,7 @@ RUN go install \
     golang.org/x/crypto/ssh \
     golang.org/x/crypto/acme \
     nhooyr.io/websocket \
-    github.com/mdlayher/netlink \
-    golang.zx2c4.com/wireguard/device
+    github.com/mdlayher/netlink
 
 COPY tailscale/. .
 

@@ -7,7 +7,7 @@ echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.conf
 sysctl -p /etc/sysctl.conf
 
-# Prepare run dir
+# Prepare run dirs
 if [ ! -d "/var/run/sshd" ]; then
   mkdir -p /var/run/sshd
 fi
@@ -21,23 +21,20 @@ for s in "${SUBNETS[@]}"; do
   ip route add "$s" via "${CONTAINER_GATEWAY}"
 done
 
-# Check if this is first-time container startup
-if [ ! -f "/var/run/tailscale.sh.pid" ]; then
-	# Delete all the old devices with this hostname.
-	IDS=$(curl -sSL "https://api.tailscale.com/api/v2/domain/${DOMAIN}/devices" -u "${API_KEY}:" | jq -r '.[][]  | select(.hostname == "'${HOSTNAME}'") | .id' || echo "")
-	while IFS= read -r id; do
-		if [[ ! -z "$id" ]]; then
-			echo "deleting tailscale device: $id";
-			curl -sSL -XDELETE  -u "${API_KEY}:" "https://api.tailscale.com/api/v2/device/$id";
-		fi
-	done <<EOL
-$IDS
-EOL
+# Check if the machine exists
+ID=$(curl -sSL "https://api.tailscale.com/api/v2/domain/${DOMAIN}/devices" -u "${API_KEY}:" | jq -r '.[][]  | select(.hostname == "'${HOSTNAME}'") | .id' || echo "")
+if [[ ! -z "$ID" ]]; then
+	# Check if this is a differing version. If so, remove the machine
+	VERSION=$(tailscale version | head -n 1)
+	CLIENT_VERSION=$(curl -sSL -XGET  -u "${API_KEY}:" "https://api.tailscale.com/api/v2/device/$ID" | jq -r '.clientVersion' || echo "")
+	if [[ "$CLIENT_VERSION" != "$VERSION"* ]]; then
+		# Delete the machine
+		echo "Deleting tailscale machine: $ID";
+		curl -sSL -XDELETE  -u "${API_KEY}:" "https://api.tailscale.com/api/v2/device/$ID";
+	fi
 fi
 
-echo $$ >/var/run/tailscale.sh.pid
-
-# Start tailscaled and bring tailscale up 
+# Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled &
 until /usr/local/bin/tailscale up \
   --reset --authkey=${AUTH_KEY} \

@@ -21,23 +21,16 @@ for s in "${SUBNETS[@]}"; do
   ip route add "$s" via "${CONTAINER_GATEWAY}"
 done
 
-# Check if the machine exists
-ID=$(curl -sSL "https://api.tailscale.com/api/v2/domain/${DOMAIN}/devices" -u "${API_KEY}:" | jq -r '.[][]  | select(.hostname == "'${HOSTNAME}'") | .id' || echo "")
-if [[ ! -z "$ID" ]]; then
-	# Check if this is a differing version. If so, remove the machine
-	VERSION=$(tailscale version | head -n 1)
-	CLIENT_VERSION=$(curl -sSL -XGET  -u "${API_KEY}:" "https://api.tailscale.com/api/v2/device/$ID" | jq -r '.clientVersion' || echo "")
-	if [[ "$CLIENT_VERSION" != "$VERSION"* ]]; then
-		# Delete the machine
-		echo "Deleting tailscale machine: $ID";
-		curl -sSL -XDELETE  -u "${API_KEY}:" "https://api.tailscale.com/api/v2/device/$ID";
-	fi
+# Set login server for tailscale
+if [[ -z "$LOGIN_SERVER" ]]; then
+	LOGIN_SERVER=https://controlplane.tailscale.com
 fi
 
 # Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled &
 until /usr/local/bin/tailscale up \
   --reset --authkey=${AUTH_KEY} \
+	--login-server ${LOGIN_SERVER} \
 	--advertise-routes="${ADVERTISE_ROUTES}" \
   ${TAILSCALE_ARGS}
 do

@@ -4,7 +4,9 @@ This project provides build and configuration information to run [Tailscale](htt
 
 This project is only recommended for research and testing purposes. Testing indicates there are significant performance hurdles: running a unidirectional IPerf UDP test of 50 Mbps via the container on a Mikrotik hAP ac3 consumes ~75% of the router's CPU.
 
-The instructions below assume a use case for tailscale-enabled hosts accessing a router connected LAN subnet. Other site to site scenarios are outlined in the [project wiki](https://github.com/Fluent-networks/tailscale-mikrotik/wiki).
+The instructions below assume a use case for tailscale-enabled hosts accessing a router connected LAN subnet. Both Tailscale and Headscale control servers are supported.
+
+Other site to site scenarios are outlined in the [project wiki](https://github.com/Fluent-networks/tailscale-mikrotik/wiki).
 
 ## Instructions
 
@@ -56,27 +58,47 @@ The router must be be running RouterOS v7.6 or later with the container package 
 /ip/route/add dst-address=100.64.0.0/10 gateway=172.17.0.2
 ```
 
-5. Add environment variables as per the list below.
+5. Add environment variables and container mount
 
 | Variable          | Description                                   | Comment                                      |
 | ----------------- | --------------------------------------------- | -------------------------------------------- |
 | PASSWORD          | System root user password                     |                                              |
 | DOMAIN            | Tailscale domain                              |                                              |
-| AUTH_KEY          | Tailscale reusable key                        | Generate from the tailscale console          |
-| API_KEY           | Tailscale API key                             | See Upgrading section below                  |
+| AUTH_KEY          | Tailscale non-reusable key or Headscale pre-authenticated key                       | Generate from the Tailscale console or Headscale CLI         |
 | ADVERTISE_ROUTES  | Comma-separated list of routes to advertise   |                                              |
-| CONTAINER_GATEWAY | The container bridge IP address on the router |                                              |
+| CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
+| API_KEY           | Tailscale API key                             | Only required for Tailscale. See Upgrading section below                  |
+| LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
 
+Example Tailscale control server configuration:
 ```
 /container/envs
 add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
 add name="tailscale" key="DOMAIN" value="word-word.ts.net"
 add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
-add name="tailscale" key="API_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
+add name="tailscale" key="API_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
+```
+Example Headscale control server configuration:
+```
+/container/envs
+add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
+add name="tailscale" key="AUTH_KEY" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
+add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
+add name="tailscale" key="API_KEY" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+add name="tailscale" key="LOGIN_SERVER" value="http://headscale.example.com:8080"
+add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
+```
+
+Define the the mount as per below.
+
+```
+/container mounts
+name="tailscale" src="/tailscale" dst="/var/lib/tailscale" 
 ```
 
 6. Create the container
@@ -116,7 +138,12 @@ Ensure the container has been extracted and added by verifying `status=stopped` 
 
 In the Tailscale console, check the router is authenticated and enable the subnet routes. Your tailscale hosts should now be able to reach the router's LAN subnet. 
 
-The container exposes a SSH server for management purposes using root credentials, and can be accessed via the router's tailscale address or the veth interface address.
+The container exposes a SSH server for management purposes using root credentials, and can be accessed via the router's tailscale address or the veth interface address. Alternatively, you can access the container via the router CLI:
+
+```
+/container/shell 0
+bash-5.1# 
+```
 
 ## Upgrading
 

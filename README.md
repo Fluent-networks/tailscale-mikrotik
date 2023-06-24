@@ -63,11 +63,9 @@ The router must be be running RouterOS v7.6 or later with the container package 
 | Variable          | Description                                   | Comment                                      |
 | ----------------- | --------------------------------------------- | -------------------------------------------- |
 | PASSWORD          | System root user password                     |                                              |
-| DOMAIN            | Tailscale domain                              |                                              |
 | AUTH_KEY          | Tailscale non-reusable key or Headscale pre-authenticated key                       | Generate from the Tailscale console or Headscale CLI         |
 | ADVERTISE_ROUTES  | Comma-separated list of routes to advertise   |                                              |
 | CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
-| API_KEY           | Tailscale API key                             | Only required for Tailscale. See Upgrading section below                  |
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
 
@@ -75,11 +73,9 @@ Example Tailscale control server configuration:
 ```
 /container/envs
 add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
-add name="tailscale" key="DOMAIN" value="word-word.ts.net"
 add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
-add name="tailscale" key="API_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
 ```
 Example Headscale control server configuration:
@@ -89,7 +85,6 @@ add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
 add name="tailscale" key="AUTH_KEY" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
-add name="tailscale" key="API_KEY" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="LOGIN_SERVER" value="http://headscale.example.com:8080"
 add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
 ```
@@ -98,7 +93,7 @@ Define the the mount as per below.
 
 ```
 /container mounts
-name="tailscale" src="/tailscale" dst="/var/lib/tailscale" 
+add name="tailscale" src="/tailscale" dst="/var/lib/tailscale" 
 ```
 
 6. Create the container
@@ -155,9 +150,7 @@ To upgrade, first stop and remove the container.
 /container/remove 0
 ```
 
-Create a new container as per Step 6. The tailscale.sh script detects if the tailscale machine exists and removes it using the Tailscale API. A new machine is then created with the same hostname.
-
-In the Tailscale console, check the router is authenticated and enable the subnet routes.
+Create the upgraded container as per Step 6. 
 
 ### Via Script
 The script **upgrade.rsc** automates the upgrade process. To use the script, edit the *hostname* variable to match your container

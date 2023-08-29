@@ -68,6 +68,8 @@ The router must be be running RouterOS v7.6 or later with the container package 
 | CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
+| TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
+|
 
 Example Tailscale control server configuration:
 ```

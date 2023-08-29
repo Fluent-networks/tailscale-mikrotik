@@ -27,7 +27,7 @@ if [[ -z "$LOGIN_SERVER" ]]; then
 fi
 
 # Start tailscaled and bring tailscale up
-/usr/local/bin/tailscaled &
+/usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
 until /usr/local/bin/tailscale up \
   --reset --authkey=${AUTH_KEY} \
 	--login-server ${LOGIN_SERVER} \

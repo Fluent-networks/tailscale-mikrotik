@@ -8,9 +8,13 @@ The instructions below assume a use case for tailscale-enabled hosts accessing a
 
 Other site to site scenarios are outlined in the [project wiki](https://github.com/Fluent-networks/tailscale-mikrotik/wiki).
 
+## Requirements
+
+The Mikrotik Container package is compatible with ARM, ARM64 and x86 architectures and the router must be be running RouterOS v7.6 or later. Refer to the [Mikrotik Container documentation](https://help.mikrotik.com/docs/display/ROS/Container) for recommendations, disclaimer and security risks. 
+
 ## Instructions
 
-The container runs as a [tailscale subnet router](https://tailscale.com/kb/1019/subnets/) on a Mikrotik hAP ac3. There are two subnets configured:
+The example container runs as a [tailscale subnet router](https://tailscale.com/kb/1019/subnets/) on a Mikrotik hAP ac3. There are two subnets configured:
 
 * 192.168.88.0/24: the default bridge with physical LAN interface ports, routed to the tailscale network
 * 172.17.0.0/16: the docker bridge with a virtual ethernet (veth) interface port for the container
@@ -29,7 +33,7 @@ The build script uses [Docker Buildx](https://docs.docker.com/buildx/working-wit
 
 ### Configure the Router
 
-The router must be be running RouterOS v7.6 or later with the container package loaded; this section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
+This section follows the Mikrotik Container documentation with additional steps to route the LAN subnet via the tailscale container.
 
 
 1. Enable container mode, and reboot.
@@ -191,3 +195,4 @@ Note the script will continue to run if you are connecting over the tailnet. Whe
 ## Contributing
 
 We welcome suggestions and feedback from people interested in integrating Tailscale on the RouterOS platform. Please send a PR or create an issue if you're having any problems.
+v

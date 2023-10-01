@@ -73,7 +73,6 @@ This section follows the Mikrotik Container documentation with additional steps 
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
-|
 
 Example Tailscale control server configuration:
 ```
@@ -195,4 +194,3 @@ Note the script will continue to run if you are connecting over the tailnet. Whe
 ## Contributing
 
 We welcome suggestions and feedback from people interested in integrating Tailscale on the RouterOS platform. Please send a PR or create an issue if you're having any problems.
-v

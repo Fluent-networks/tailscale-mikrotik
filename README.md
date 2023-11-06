@@ -19,7 +19,9 @@ The example container runs as a [tailscale subnet router](https://tailscale.com/
 * 192.168.88.0/24: the default bridge with physical LAN interface ports, routed to the tailscale network
 * 172.17.0.0/16: the docker bridge with a virtual ethernet (veth) interface port for the container
 
-A WAN interface is configured as per default configuration on **ether1** for connectivity to the Tailscale Network. Note storage of the docker image on the router uses a USB drive mounted as **disk1** due to the limited storage (128MB) available on the router.
+A WAN interface is configured as per default configuration on **ether1** for connectivity to the Tailscale Network. 
+
+Note storage of the docker image on the router uses a USB drive mounted as **disk1** due to the limited storage (128MB) available on the router. To configure storage devices see the [Mikrotik Disks guide](https://help.mikrotik.com/docs/display/ROS/Disks).
 
 ### Build the Docker Image
 

@@ -25,8 +25,8 @@
 # https://mikrotik.com/products/matrix
 #
 PLATFORM="linux/arm/v7"
-TAILSCALE_VERSION=1.50.0
-VERSION=0.1.24
+TAILSCALE_VERSION=1.52.1
+VERSION=0.1.25
 
 set -eu
 

@@ -73,6 +73,7 @@ This section follows the Mikrotik Container documentation with additional steps 
 | ADVERTISE_ROUTES  | Comma-separated list of routes to advertise   |                                              |
 | CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
+| UPDATE_TAILSCALE      | Update tailscale on container startup                         |       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
 
@@ -83,6 +84,7 @@ add name="tailscale" key="PASSWORD" value="xxxxxxxxxxxxxx"
 add name="tailscale" key="AUTH_KEY" value="tskey-xxxxxxxxxxxxxxxxxxxxxxxx"
 add name="tailscale" key="ADVERTISE_ROUTES" value="192.168.88.0/24"
 add name="tailscale" key="CONTAINER_GATEWAY" value="172.17.0.1"
+add name="tailscale" key="UPDATE_TAILSCALE"
 add name="tailscale" key="TAILSCALE_ARGS" value="--accept-routes --advertise-exit-node"
 ```
 Example Headscale control server configuration:

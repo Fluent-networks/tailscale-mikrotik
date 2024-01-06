@@ -21,6 +21,11 @@ for s in "${SUBNETS[@]}"; do
   ip route add "$s" via "${CONTAINER_GATEWAY}"
 done
 
+# Perform an update if set
+if [[ ! -z "${UPDATE_TAILSCALE+x}" ]]; then
+  /usr/local/bin/tailscale update --yes
+fi
+
 # Set login server for tailscale
 if [[ -z "$LOGIN_SERVER" ]]; then
 	LOGIN_SERVER=https://controlplane.tailscale.com

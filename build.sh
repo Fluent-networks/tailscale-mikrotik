@@ -26,7 +26,7 @@
 #
 PLATFORM="linux/arm/v7"
 TAILSCALE_VERSION=1.52.1
-VERSION=0.1.25
+VERSION=0.1.26
 
 set -eu
 
@@ -41,6 +41,7 @@ cd tailscale && eval $(./build_dist.sh shellvars) && cd ..
 
 docker buildx build \
   --no-cache \
+  --build-arg TAILSCALE_VERSION=$TAILSCALE_VERSION \
   --build-arg VERSION_LONG=$VERSION_LONG \
   --build-arg VERSION_SHORT=$VERSION_SHORT \
   --build-arg VERSION_GIT_HASH=$VERSION_GIT_HASH \

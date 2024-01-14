@@ -34,8 +34,8 @@ fi
 # Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
 until /usr/local/bin/tailscale up \
-  --reset --authkey=${AUTH_KEY} \
-	--login-server ${LOGIN_SERVER} \
+  --reset --authkey="${AUTH_KEY}" \
+	--login-server "${LOGIN_SERVER}" \
 	--advertise-routes="${ADVERTISE_ROUTES}" \
   ${TAILSCALE_ARGS}
 do

@@ -54,7 +54,7 @@ RUN GOARCH=$TARGETARCH go install -ldflags="\
       -X tailscale.com/version.GitCommit=$VERSION_GIT_HASH" \
       -v ./cmd/tailscale ./cmd/tailscaled
 
-FROM alpine:3.16
+FROM alpine:3.18
 
 RUN apk add --no-cache ca-certificates iptables iproute2 bash openssh curl jq
 

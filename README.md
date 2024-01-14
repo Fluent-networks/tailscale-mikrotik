@@ -69,12 +69,12 @@ This section follows the Mikrotik Container documentation with additional steps 
 | Variable          | Description                                   | Comment                                      |
 | ----------------- | --------------------------------------------- | -------------------------------------------- |
 | PASSWORD          | System root user password                     |                                              |
-| AUTH_KEY          | Tailscale non-reusable key or Headscale pre-authenticated key                       | Generate from the Tailscale console or Headscale CLI         |
+| AUTH_KEY          | Tailscale non-reusable key, [Oauth secret](https://tailscale.com/kb/1215/oauth-clients#registering-new-nodes-using-oauth-credentials) or Headscale pre-authenticated key                       | Generate from the Tailscale console or Headscale CLI         |
 | ADVERTISE_ROUTES  | Comma-separated list of routes to advertise   |                                              |
 | CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | UPDATE_TAILSCALE      | Update tailscale on container startup                         |       |
-| TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                                     |
+| TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional                         |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
 
 Example Tailscale control server configuration:

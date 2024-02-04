@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
-
+# Copyright (c) 2024 Fluent Networks Pty Ltd & AUTHORS All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
 #
 # Updates tailscale respository and runs `docker build` with flags configured for 
 # docker distribution. 
@@ -25,8 +27,8 @@
 # https://mikrotik.com/products/matrix
 #
 PLATFORM="linux/amd64"
-TAILSCALE_VERSION=1.56.1
-VERSION=0.1.27
+TAILSCALE_VERSION=1.58.2
+VERSION=0.1.28
 
 set -eu
 

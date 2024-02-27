@@ -19,7 +19,7 @@
 #
 ############################################################################
 
-FROM golang:1.21-alpine AS build-env
+FROM golang:1.22-alpine AS build-env
 
 WORKDIR /go/src/tailscale
 
@@ -56,7 +56,7 @@ RUN GOARCH=$TARGETARCH go install -ldflags="\
 
 FROM alpine:3.18
 
-RUN apk add --no-cache ca-certificates iptables iproute2 bash openssh curl jq
+RUN apk add --no-cache ca-certificates iptables iproute2 ip6tables bash openssh curl jq
 
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 RUN ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa

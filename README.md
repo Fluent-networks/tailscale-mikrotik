@@ -2,7 +2,7 @@
 
 This project provides build and configuration information to run [Tailscale](https://tailscale.com) in [Mikrotik Container](https://help.mikrotik.com/docs/display/ROS/Container). Container is Mikrotik's own implementation of Docker(TM), allowing users to run containerized environments within RouterOS.
 
-This project is only recommended for research and testing purposes. Testing indicates there are significant performance hurdles: running a unidirectional IPerf UDP test of 50 Mbps via the container on a Mikrotik hAP ac3 consumes ~75% of the router's CPU.
+This project is only recommended for research and testing purposes. Note the container can impact router performance: running a IPerf test of 50 Mbps via the container on a Mikrotik hAP ax3 consumes ~30% of the router's CPU.
 
 The instructions below assume a use case for tailscale-enabled hosts accessing a router connected LAN subnet. Both Tailscale and Headscale control servers are supported.
 

@@ -26,6 +26,8 @@ WORKDIR /go/src/tailscale
 COPY tailscale/go.mod tailscale/go.sum ./
 RUN go mod download
 
+RUN apk add --no-cache upx
+
 # Pre-build some stuff before the following COPY line invalidates the Docker cache.
 RUN go install \
     github.com/aws/aws-sdk-go-v2/aws \
@@ -48,11 +50,13 @@ ARG VERSION_GIT_HASH=""
 ENV VERSION_GIT_HASH=$VERSION_GIT_HASH
 ARG TARGETARCH
 
-RUN GOARCH=$TARGETARCH go install -ldflags="\
+RUN GOARCH=$TARGETARCH go install -ldflags="-w -s\
       -X tailscale.com/version.Long=$VERSION_LONG \
       -X tailscale.com/version.Short=$VERSION_SHORT \
       -X tailscale.com/version.GitCommit=$VERSION_GIT_HASH" \
       -v ./cmd/tailscale ./cmd/tailscaled
+
+RUN upx /go/bin/tailscale && upx /go/bin/tailscaled
 
 FROM alpine:3.18
 

@@ -76,6 +76,7 @@ This section follows the Mikrotik Container documentation with additional steps 
 | UPDATE_TAILSCALE      | Update tailscale on container startup                         |       |
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional. Note ```---accept-routes``` is required to accept the advertised routes of the other subnet routers |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
+| STARTUP_SCRIPT    | Extra script to execute in container before tailscaled | Optional |
 
 Example Tailscale control server configuration:
 ```
@@ -103,6 +104,14 @@ Define the the mount as per below.
 ```
 /container mounts
 add name="tailscale" src="/tailscale" dst="/var/lib/tailscale" 
+```
+
+It's possible to execute extra script during container startup. To do this, firstly make sure that script is accessible inside
+container. For example put it to `/var/lib/tailscale` folder and then add `STARTUP_SCRIPT` environment variable:
+
+```
+/container/envs
+add name="tailscale" key="STARTUP_SCRIPT" value="/var/lib/tailscale/startup.sh"
 ```
 
 6. Create the container

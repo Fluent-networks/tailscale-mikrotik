@@ -26,9 +26,9 @@
 # Set PLATFORM as required for your router model. See:
 # https://mikrotik.com/products/matrix
 #
-PLATFORM="linux/arm64"
-TAILSCALE_VERSION=1.74.0
-VERSION=0.1.32
+PLATFORM="linux/amd64"
+TAILSCALE_VERSION=1.78.1
+VERSION=0.1.33
 
 set -eu
 
@@ -39,6 +39,7 @@ then
     git -c advice.detachedHead=false clone https://github.com/tailscale/tailscale.git --branch v$TAILSCALE_VERSION
 fi
 
+TS_USE_TOOLCHAIN="Y"
 cd tailscale && eval $(./build_dist.sh shellvars) && cd ..
 
 docker buildx build \

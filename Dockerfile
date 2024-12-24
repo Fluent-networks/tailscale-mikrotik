@@ -58,7 +58,7 @@ RUN GOARCH=$TARGETARCH go install -ldflags="-w -s\
 
 RUN upx /go/bin/tailscale && upx /go/bin/tailscaled
 
-FROM alpine:3.18
+FROM alpine:3.19
 
 RUN apk add --no-cache ca-certificates iptables iproute2 ip6tables bash openssh curl jq
 

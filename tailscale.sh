@@ -34,6 +34,10 @@ if [[ -z "$LOGIN_SERVER" ]]; then
 	LOGIN_SERVER=https://controlplane.tailscale.com
 fi
 
+if [[ -n "$STARTUP_SCRIPT" ]]; then
+       bash "$STARTUP_SCRIPT" || exit $?
+fi
+
 # Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
 until /usr/local/bin/tailscale up \

@@ -60,7 +60,7 @@ RUN upx /go/bin/tailscale && upx /go/bin/tailscaled
 
 FROM alpine:3.19
 
-RUN apk add --no-cache ca-certificates iptables iproute2 ip6tables bash openssh curl jq
+RUN apk add --no-cache ca-certificates nftables iproute2 bash openssh curl jq
 
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 RUN ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa

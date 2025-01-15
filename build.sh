@@ -28,7 +28,7 @@
 #
 PLATFORM="linux/amd64"
 TAILSCALE_VERSION=1.78.1
-VERSION=0.1.33
+VERSION=0.1.34
 
 set -eu
 

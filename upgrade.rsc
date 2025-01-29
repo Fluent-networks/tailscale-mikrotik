@@ -1,49 +1,60 @@
 # Container identifier
-:global hostname "mikrotik-west-1";
+:local hostname "mikrotik-west-1";
 
 /container 
-:global id [find where hostname=$hostname];
-:global rootdir [get $id root-dir];
-:global dns [get $id dns];
-:global logging [get $id logging];
-:global status [get $id status];
+:local id [find where hostname=$hostname];
+:local rootdir [get $id root-dir];
+:local dns [get $id dns];
+:local logging [get $id logging];
+:local status [get $id status];
+:local mounts [get $id mounts];
+:local envlist [get $id envlist];
+:local interface [get $id interface];
+:local startonboot [get $id start-on-boot];
+:global LogPrefix "Tailscale";
+
+:local logI do={
+    :global LogPrefix;
+    :put ($LogPrefix . ": " . $1);
+    :log info ($LogPrefix . ": " . $1);
+}
 
 # Stop the container
+$logI "Stopping the container...";
 stop $id
-:put "Stopping the container...";
 :while ($status != "stopped") do={
-    :put "Waiting for the container to stop...";
+    $logI "Waiting for the container to stop...";
     :delay 5;
     :set status [get $id status];
 } 
-:put "Stopped.";
+$logI "Stopped.";
 
 # Remove the container
 remove $id
-:put "Removing the container...";
+$logI "Removing the container...";
 :while ($status = "stopped") do={
-    :put "Waiting for the container to be removed...";
+    $logI "Waiting for the container to be removed...";
     :delay 5;
     :set status [get $id status];
 } 
-:put "Removed.";
+$logI "Removed.";
 
 # Add the container
 :delay 5;
-:put "Adding the container...";
+$logI "Adding the container...";
 add remote-image=fluent-networks/tailscale-mikrotik:latest \
-    interface=veth1 envlist=tailscale root-dir=$rootdir \
-    start-on-boot=yes hostname=$hostname dns=$dns logging=$logging
+    interface=$interface envlist=$envlist root-dir=$rootdir mounts=$mounts\
+    start-on-boot=$startonboot hostname=$hostname dns=$dns logging=$logging
 :do {
     :set status [get [find where hostname=$hostname] status];
     :if ($status != "stopped") do={
-        :put "Waiting for the container to be added...";
+        $logI "Waiting for the container to be added...";
         :delay 5;
     }
 } while ($status != "stopped")
-:put "Added."
+$logI "Added."
 
 # Start the container
-:put "Starting the container.";
+$logI "Starting the container.";
 :set id [find where hostname=$hostname];
 start $id

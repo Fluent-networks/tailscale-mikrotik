@@ -38,9 +38,6 @@ if [[ -n "$STARTUP_SCRIPT" ]]; then
        bash "$STARTUP_SCRIPT" || exit $?
 fi
 
-# Flag tailscale to use nftables
-TS_DEBUG_FIREWALL_MODE=nftables
-
 # Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
 until /usr/local/bin/tailscale up \

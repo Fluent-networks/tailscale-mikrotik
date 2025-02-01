@@ -74,7 +74,9 @@ This section follows the Mikrotik Container documentation with additional steps 
 | CONTAINER_GATEWAY | The container bridge (veth1) IP address on the router |                                              |
 | LOGIN_SERVER      | Headscale login server                        | Only required for Headscale control server. Do not set if using Tailscale       |
 | UPDATE_TAILSCALE      | Update tailscale on container startup                         |       |
-| TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional. Note ```---accept-routes``` is required to accept the advertised routes of the other subnet routers |
+| TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional. Note:
+```--accept-routes``` is required to accept the advertised routes of the other subnet routers.
+```--netfilter-mode``` controls the degree of firewall configuration using iptables. See [tailscale up](https://tailscale.com/kb/1241/tailscale-up). |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
 | STARTUP_SCRIPT    | Extra script to execute in container before tailscaled | Optional |
 

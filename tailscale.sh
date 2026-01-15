@@ -30,12 +30,13 @@ if [[ ! -z "${UPDATE_TAILSCALE+x}" ]]; then
 fi
 
 # Set login server for tailscale
-if [[ -z "$LOGIN_SERVER" ]]; then
+if [[ -z "${LOGIN_SERVER}" ]]; then
 	LOGIN_SERVER=https://controlplane.tailscale.com
 fi
 
-if [[ -n "$STARTUP_SCRIPT" ]]; then
-       bash "$STARTUP_SCRIPT" || exit $?
+# Execute startup script if it exists
+if [[ -n "${STARTUP_SCRIPT}" && -f "${STARTUP_SCRIPT}" ]]; then
+       bash "${STARTUP_SCRIPT}" || exit $?
 fi
 
 # Start tailscaled and bring tailscale up
@@ -49,6 +50,11 @@ do
     sleep 0.1
 done
 echo Tailscale started
+
+# Execute running script if it exists
+if [[ -n "${RUNNING_SCRIPT}" && -f "${RUNNING_SCRIPT}" ]]; then
+       bash "${RUNNING_SCRIPT}" || exit $?
+fi
 
 # Start SSH
 /usr/sbin/sshd -D

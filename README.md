@@ -21,7 +21,7 @@ The example container runs as a [tailscale subnet router](https://tailscale.com/
 
 A WAN interface is configured as per default configuration on **ether1** for connectivity to the Tailscale Network. 
 
-Note storage of the docker image on the router uses a USB drive mounted as **disk1** due to the limited storage (128MB) available on the router. To configure storage devices see the [Mikrotik Disks guide](https://help.mikrotik.com/docs/display/ROS/Disks).
+Note storage of the docker image on the router uses a USB drive mounted as **disk1** due to the limited storage available on router. To configure storage devices see the [Mikrotik Disks guide](https://help.mikrotik.com/docs/display/ROS/Disks).
 
 ### Build the Docker Image
 
@@ -77,6 +77,7 @@ This section follows the Mikrotik Container documentation with additional steps 
 | TAILSCALE_ARGS    | Additional arguments passed to tailscale      | Optional. Note:<br/> ```--accept-routes``` is required to accept the advertised routes of the other subnet routers.<br/> ```--netfilter-mode``` controls the degree of firewall configuration using iptables. See [tailscale up](https://tailscale.com/kb/1241/tailscale-up). |
 | TAILSCALED_ARGS   | Additional arguments passed to tailscaled     | Optional                                     |
 | STARTUP_SCRIPT    | Extra script to execute in container before tailscaled | Optional |
+| RUNNING_SCRIPT    | Extra script to execute in container after tailscaled is running | Optional |
 
 Example Tailscale control server configuration:
 ```
@@ -106,12 +107,15 @@ Define the the mount as per below.
 add name="tailscale" src="/tailscale" dst="/var/lib/tailscale" 
 ```
 
-It's possible to execute extra script during container startup. To do this, firstly make sure that script is accessible inside
-container. For example put it to `/var/lib/tailscale` folder and then add `STARTUP_SCRIPT` environment variable:
+It's possible to execute extra scripts during container startup. To do this, firstly make sure that script(s) are accessible inside
+container, for example in `/var/lib/tailscale` folder. 
+
+Then add `STARTUP_SCRIPT` and/or `RUNNING_SCRIPT` environment variables:
 
 ```
 /container/envs
 add list="tailscale" key="STARTUP_SCRIPT" value="/var/lib/tailscale/startup.sh"
+add list="tailscale" key="RUNNING_SCRIPT" value="/var/lib/tailscale/running.sh"
 ```
 
 6. Create the container

@@ -51,6 +51,11 @@ do
 done
 echo Tailscale started
 
+# Check that a route exists for 100.64.0.0/10; if not, add
+if ! ip route show 100.64.0.0/10 >/dev/null 2>&1; then
+  ip route add 100.64.0.0/10 via tailscale0
+fi
+
 # Execute running script if it exists
 if [[ -n "${RUNNING_SCRIPT}" && -f "${RUNNING_SCRIPT}" ]]; then
        bash "${RUNNING_SCRIPT}" || exit $?

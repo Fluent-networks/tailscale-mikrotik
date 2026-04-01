@@ -28,7 +28,7 @@
 #
 PLATFORM="linux/arm64"
 TAILSCALE_VERSION=1.96.3
-VERSION=0.1.39
+VERSION=0.1.40
 
 set -eu
 

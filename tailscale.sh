@@ -57,6 +57,12 @@ if [ $EXISTS -eq 0 ]; then
   ip route add 100.64.0.0/10 dev tailscale0
 fi
 
+# Check that a route exists for fd7a:115c:a1e0::/48; if not, add
+EXISTSV6=`ip -6 route show fd7a:115c:a1e0::/48 | wc -l`
+if [ $EXISTSV6 -eq 0 ]; then
+  ip -6 route add fd7a:115c:a1e0::/48 dev tailscale0
+fi
+
 # Execute running script if it exists
 if [[ -n "${RUNNING_SCRIPT}" && -f "${RUNNING_SCRIPT}" ]]; then
        bash "${RUNNING_SCRIPT}" || exit $?

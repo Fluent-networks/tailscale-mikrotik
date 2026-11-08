@@ -19,7 +19,7 @@
 #
 ############################################################################
 
-FROM golang:1.26-alpine AS build-env
+FROM golang:1.27-alpine AS build-env
 
 WORKDIR /go/src/tailscale
 
@@ -58,7 +58,7 @@ RUN GOARCH=$TARGETARCH go install -ldflags="-w -s\
 
 RUN upx /go/bin/tailscale && upx /go/bin/tailscaled
 
-FROM alpine:3.22
+FROM alpine:3.22.8
 
 RUN apk add --no-cache ca-certificates iptables iptables-legacy iproute2 bash openssh curl jq
 
